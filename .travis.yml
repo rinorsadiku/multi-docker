@@ -1,0 +1,26 @@
+sudo: required
+services:
+  - docker
+
+# Here we could build a lot of other containers that we would like to runt test
+before_install:
+  - docker build -t rinorsadiku/react-test -f ./client/Dockerfile.dev ./client
+
+# Run all the other build containers here
+script:
+  - docker run -e CI=true rinorsadiku/react-test npm run test -- --coverage
+
+# Here we will add the configuration to build the prod image after the tests have passed
+after_success:
+  - docker build -t rinorsadiku/multi-client ./client
+  - docker build -t rinorsadiku/multi-server ./server
+  - docker build -t rinorsadiku/worker ./worker
+  - docker build -t rinorsadiku/nginx ./nginx
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  # Take those images and push them to docker hub
+  - docker push rinorsadiku/multi-client
+  - docker push rinorsadiku/multi-server
+  - docker push rinorsadiku/multi-worker
+  - docker push rinorsadiku/multi-nginx
