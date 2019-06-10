@@ -25,3 +25,16 @@ after_success:
   - docker push rinorsadiku/multi-server
   - docker push rinorsadiku/multi-worker
   - docker push rinorsadiku/multi-nginx
+
+deploy:
+  provider: elasticbeanstalk
+  region: eu-central-1
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-eu-central-1-117778104912
+  bucker_path: docker-multi
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: '$AWS_SECRET_KEY'
